@@ -1,4 +1,4 @@
-https://raw.githubusercontent.com/muhammadaliajaz/python-files-errors-assessment/main/banner.svg
+<img src="banner.svg" alt="task   banner" width="100%">
 # Python Files & Errors Assessment
 
 Two small command-line tools for a training institute, built with Python's **file handling**, **exception handling**, **sets** and **comprehensions**. No external libraries are required.
