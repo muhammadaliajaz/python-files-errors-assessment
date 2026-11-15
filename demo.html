@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Institute Tools: Interactive Demo</title>
+<style>
+:root{--bg:#f5f0e4;--card:#fffdf7;--ink:#1f2b25;--muted:#66726b;--line:#d9d0bb;--green:#2f5d4a;--green-ink:#fff;--red:#b4432f;--chip:#e6efe8;--code:#1f2b25;--code-ink:#e9e4d3;color-scheme:light}
+@media (prefers-color-scheme:dark){:root{--bg:#17201b;--card:#1f2b25;--ink:#ece6d4;--muted:#9aa89f;--line:#33433a;--green:#7fc4a2;--green-ink:#10241a;--red:#ee8a74;--chip:#2a3b32;--code:#0f1713;--code-ink:#d9d3c0;color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Iowan Old Style",Georgia,serif;padding:env(safe-area-inset-top,0) 0 env(safe-area-inset-bottom,0)}
+.wrap{max-width:1000px;margin:0 auto;padding:28px 18px 60px}
+h1{font-size:2rem;margin:0 0 4px;letter-spacing:-.01em}
+.sub{color:var(--muted);margin:0 0 22px;max-width:62ch}
+.tabs{display:flex;gap:6px;border-bottom:2px solid var(--green);margin-bottom:20px}
+.tab{font:inherit;background:none;border:1px solid transparent;border-bottom:0;padding:9px 16px;cursor:pointer;color:var(--muted);border-radius:6px 6px 0 0}
+.tab[aria-selected=true]{background:var(--green);color:var(--green-ink)}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px}
+@media(max-width:760px){.grid{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:16px;position:relative}
+.card h2{font-size:1.05rem;margin:0 0 12px}
+label{display:block;font-size:.85rem;color:var(--muted);margin:10px 0 3px}
+input,textarea{width:100%;font:inherit;padding:8px 10px;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:5px}
+textarea{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.88rem;min-height:230px;resize:vertical}
+input:focus,textarea:focus,button:focus-visible{outline:2px solid var(--green);outline-offset:1px}
+.btn{font:inherit;background:var(--green);color:var(--green-ink);border:0;padding:8px 14px;border-radius:5px;cursor:pointer}
+.btn.alt{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.err{color:var(--red);font-size:.85rem;min-height:1.2em;margin-top:6px}
+table{width:100%;border-collapse:collapse;font-size:.9rem}
+th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line)}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+.tw{overflow-x:auto}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 0}
+.chip{background:var(--chip);padding:2px 10px;border-radius:99px;font-size:.85rem}
+pre{margin:0;background:var(--code);color:var(--code-ink);padding:12px;border-radius:6px;font:.82rem/1.5 ui-monospace,Menlo,Consolas,monospace;overflow-x:auto;min-height:56px;white-space:pre}
+.log{max-height:150px;overflow-y:auto}
+.log .e{color:#f0a08c}.log .o{color:#9fd6b6}
+.stats{display:flex;gap:22px;margin-bottom:10px}
+.stat b{font-size:1.7rem;display:block;line-height:1.1}
+.stat span{color:var(--muted);font-size:.85rem}
+ol{margin:0;padding-left:22px}
+.full{grid-column:1/-1}
+.note{color:var(--muted);font-size:.85rem;margin-top:8px}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Institute Management Tools</h1>
+  <p class="sub">A browser demo of the two Python programs in this repository. The logic matches the scripts: same validation, same CSV format, same cleaning steps.</p>
+
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" id="t1" aria-selected="true">Expense Tracker</button>
+    <button class="tab" role="tab" id="t2" aria-selected="false">Attendance Cleaner</button>
+  </div>
+
+  <section id="p1" class="grid">
+    <div class="card">
+      <h2>1. Add New Expense</h2>
+      <label for="date">Date (YYYY-MM-DD)</label><input id="date" placeholder="2025-03-01">
+      <label for="item">Item name</label><input id="item" placeholder="A4 Paper">
+      <label for="cat">Category</label><input id="cat" placeholder="stationery">
+      <label for="amt">Amount</label><input id="amt" placeholder="1250.50" inputmode="decimal">
+      <div class="err" id="err" role="alert"></div>
+      <div class="row">
+        <button class="btn" id="add">Add expense</button>
+        <button class="btn alt" id="sample">Load sample data</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Persistence: expenses.csv</h2>
+      <pre id="csv"></pre>
+      <div class="row">
+        <button class="btn alt" id="restart">Simulate restart</button>
+        <button class="btn alt" id="reset">Delete expenses.csv</button>
+      </div>
+      <p class="note">“Simulate restart” clears the screen and reloads the saved file, like running the program again. The file is kept in this browser’s storage.</p>
+    </div>
+
+    <div class="card full">
+      <h2>2. All Expenses</h2>
+      <div class="tw"><table><thead><tr><th>Date</th><th>Item</th><th>Category</th><th class="n">Amount</th></tr></thead><tbody id="rows"></tbody></table></div>
+      <p class="note" style="margin-top:12px">Unique categories (a set):</p>
+      <div class="chips" id="chips"></div>
+    </div>
+
+    <div class="card">
+      <h2>3. Total Expenses by Category</h2>
+      <div class="tw"><table><tbody id="tot"></tbody></table></div>
+    </div>
+
+    <div class="card">
+      <h2>Program messages</h2>
+      <pre class="log" id="log"></pre>
+    </div>
+  </section>
+
+  <section id="p2" class="grid" hidden>
+    <div class="card">
+      <h2>attendance.txt (editable)</h2>
+      <textarea id="raw" spellcheck="false"></textarea>
+      <div class="row">
+        <button class="btn" id="clean">Clean attendance</button>
+        <button class="btn alt" id="rawreset">Restore sample</button>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Result</h2>
+      <div class="stats">
+        <div class="stat"><b id="s1">0</b><span>original records</span></div>
+        <div class="stat"><b id="s2">0</b><span>unique students</span></div>
+      </div>
+      <ol id="list"></ol>
+      <p class="note" id="empty">Press “Clean attendance” to see the result.</p>
+    </div>
+    <div class="card full">
+      <h2>attendance_clean.csv</h2>
+      <pre id="out">student_name</pre>
+      <div class="row"><button class="btn alt" id="dl">Download CSV</button></div>
+      <p class="note">Steps: strip and title-case each line (list comprehension), remove duplicates with a set, then sort A to Z.</p>
+    </div>
+  </section>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const KEY = 'expenses.csv';
+let expenses = [];
+
+/* ---------- storage (wrapped: it can be unavailable) ---------- */
+const store = {
+  get(){ try { return localStorage.getItem(KEY); } catch(e){ return mem; } },
+  set(v){ try { localStorage.setItem(KEY, v); } catch(e){} mem = v; },
+  del(){ try { localStorage.removeItem(KEY); } catch(e){} mem = null; }
+};
+let mem = null;
+
+/* ---------- log ---------- */
+function log(msg, type){
+  const d = document.createElement('div');
+  d.className = type; d.textContent = (type==='e' ? '! ' : '> ') + msg;
+  $('log').appendChild(d); $('log').scrollTop = 1e6;
+}
+
+/* ---------- CSV ---------- */
+const fmt = a => Number.isInteger(a) ? a.toFixed(1) : String(a);
+const quote = v => /[",\n]/.test(v) ? '"' + v.replace(/"/g,'""') + '"' : v;
+function toCSV(){
+  return 'date,item,category,amount\n' +
+    expenses.map(e => [e.date, quote(e.item), quote(e.category), fmt(e.amount)].join(',')).join('\n') +
+    (expenses.length ? '\n' : '');
+}
+function parseLine(line){
+  const out = []; let cur = '', q = false;
+  for (let i=0;i<line.length;i++){
+    const c = line[i];
+    if (q){ if (c==='"' && line[i+1]==='"'){cur+='"';i++;} else if (c==='"') q=false; else cur+=c; }
+    else if (c==='"') q = true; else if (c===',') { out.push(cur); cur=''; } else cur+=c;
+  }
+  out.push(cur); return out;
+}
+function load(){
+  expenses = [];
+  const text = store.get();
+  if (text === null){
+    log('FileNotFoundError caught: expenses.csv not found. Starting with an empty list.', 'e');
+  } else {
+    text.split('\n').slice(1).filter(l => l.trim()).forEach(l => {
+      const [date,item,category,amount] = parseLine(l);
+      const a = Number(amount);
+      if (Number.isNaN(a) || amount === undefined) log('Skipped a corrupted row: ' + l, 'e');
+      else expenses.push({date,item,category,amount:a});
+    });
+  }
+  log('Loaded ' + expenses.length + ' saved expense(s).', 'o');
+  render();
+}
+
+/* ---------- validation (mirrors the Python input loops) ---------- */
+function validDate(s){
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(s)) return false;
+  const d = new Date(s + 'T00:00:00Z');
+  return !isNaN(d) && d.toISOString().slice(0,10) === s;
+}
+function addExpense(){
+  const date = $('date').value.trim(), item = $('item').value.trim();
+  const cat = $('cat').value.trim(), raw = $('amt').value.trim();
+  let m = '';
+  if (!validDate(date)) m = 'Invalid date. Use the format YYYY-MM-DD, e.g. 2025-03-15.';
+  else if (!item) m = 'Item name cannot be empty.';
+  else if (!cat) m = 'Category cannot be empty.';
+  else {
+    const a = raw === '' ? NaN : Number(raw);
+    if (Number.isNaN(a)) { m = 'Invalid amount. Please enter a positive number, e.g. 1250.50';
+      log('ValueError caught: could not convert "' + raw + '" to a number.', 'e'); }
+    else if (a <= 0) { m = 'Invalid amount. Please enter a positive number, e.g. 1250.50';
+      log('ValueError caught: amount must be greater than zero.', 'e'); }
+  }
+  $('err').textContent = m;
+  if (m) return;
+  const title = s => s.toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
+  expenses.push({date, item, category: title(cat), amount: Number(raw)});
+  store.set(toCSV());
+  log('Expense saved to expenses.csv.', 'o');
+  ['date','item','cat','amt'].forEach(i => $(i).value = '');
+  render();
+}
+
+/* ---------- render ---------- */
+function render(){
+  $('csv').textContent = store.get() === null ? '(file does not exist yet)' : toCSV();
+  $('rows').innerHTML = expenses.length
+    ? expenses.map(e => `<tr><td>${esc(e.date)}</td><td>${esc(e.item)}</td><td>${esc(e.category)}</td><td class="n">${e.amount.toFixed(2)}</td></tr>`).join('')
+    : '<tr><td colspan="4">No expenses recorded yet.</td></tr>';
+  const cats = [...new Set(expenses.map(e => e.category))].sort();
+  $('chips').innerHTML = cats.map(c => `<span class="chip">${esc(c)}</span>`).join('') || '<span class="note">none</span>';
+  const totals = cats.map(c => [c, expenses.filter(e => e.category === c).reduce((s,e) => s + e.amount, 0)]);
+  const grand = totals.reduce((s,t) => s + t[1], 0);
+  $('tot').innerHTML = totals.length
+    ? totals.map(([c,t]) => `<tr><td>${esc(c)}</td><td class="n">${t.toFixed(2)}</td></tr>`).join('') +
+      `<tr><td><b>Grand Total</b></td><td class="n"><b>${grand.toFixed(2)}</b></td></tr>`
+    : '<tr><td>No expenses recorded yet.</td></tr>';
+}
+
+$('add').onclick = addExpense;
+['date','item','cat','amt'].forEach(i => $(i).addEventListener('keydown', e => { if (e.key === 'Enter') addExpense(); }));
+$('sample').onclick = () => {
+  [['2025-03-01','A4 Paper','Stationery',1250.5],['2025-03-02','Internet Bill','Utilities',4500],
+   ['2025-03-03','Tea & Snacks','Refreshments',800],['2025-03-04','Van Fuel','Transport',3000]]
+   .forEach(([date,item,category,amount]) => expenses.push({date,item,category,amount}));
+  store.set(toCSV()); log('Sample expenses added and saved.', 'o'); render();
+};
+$('restart').onclick = () => { expenses = []; render(); $('log').innerHTML = ''; log('Program restarted.', 'o'); load(); };
+$('reset').onclick = () => { store.del(); expenses = []; log('expenses.csv deleted.', 'o'); $('log').innerHTML=''; load(); };
+
+/* ---------- attendance ---------- */
+const SAMPLE = '  ali raza\nSARA KHAN\nahmed   ali\nAli Raza  \n\nsara khan\nbilal Ahmad\n  FATIMA noor \nahmed ali\nUmar farooq\nfatima Noor\nhina MALIK\nbilal ahmad\n';
+const title = s => s.toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
+let finalList = [];
+function clean(){
+  const raw = $('raw').value.split('\n').filter(l => l.trim());
+  const cleaned = raw.map(n => title(n.trim().split(/\s+/).join(' ')));
+  const unique = new Set(cleaned);
+  finalList = [...unique].sort();
+  $('s1').textContent = raw.length; $('s2').textContent = unique.size;
+  $('list').innerHTML = finalList.map(n => `<li>${esc(n)}</li>`).join('');
+  $('empty').hidden = finalList.length > 0;
+  if (!finalList.length) $('empty').textContent = "'attendance.txt' has no student names.";
+  $('out').textContent = 'student_name\n' + finalList.join('\n');
+}
+$('raw').value = SAMPLE;
+$('clean').onclick = clean;
+$('rawreset').onclick = () => { $('raw').value = SAMPLE; clean(); };
+$('dl').onclick = () => {
+  if (!finalList.length) clean();
+  const blob = new Blob(['student_name\n' + finalList.join('\n') + '\n'], {type:'text/csv'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = 'attendance_clean.csv'; a.click(); URL.revokeObjectURL(a.href);
+};
+
+/* ---------- tabs ---------- */
+function tab(n){
+  $('p1').hidden = n !== 1; $('p2').hidden = n !== 2;
+  $('t1').setAttribute('aria-selected', n === 1); $('t2').setAttribute('aria-selected', n === 2);
+}
+$('t1').onclick = () => tab(1); $('t2').onclick = () => tab(2);
+
+load(); clean();
+</script>
+</body>
+</html>
