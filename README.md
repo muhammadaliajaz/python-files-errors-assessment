@@ -7,6 +7,19 @@ Two small command-line tools for a training institute, built with Python's **fil
 | `expense_tracker.py` | Record and summarize daily operational expenses | User input, `expenses.csv` | `expenses.csv` |
 | `attendance_cleaner.py` | Clean, de-duplicate and sort student attendance | `attendance.txt` | `attendance_clean.csv` |
 
+## Live Demo
+
+An interactive browser version of both tools is included in [`demo.html`](demo.html). It uses the same validation, CSV format and cleaning steps as the Python scripts, so you can try the project without installing anything.
+
+**[Open the live demo](https://<your-username>.github.io/python-files-errors-assessment/demo.html)**
+
+What the demo shows:
+
+- **Expense Tracker:** add expenses, see invalid amounts rejected, view unique categories and totals, and watch `expenses.csv` update. Use **Simulate restart** to prove the saved data is loaded again.
+- **Attendance Cleaner:** edit the raw `attendance.txt` text, clean it, see the record counts, and download `attendance_clean.csv`.
+
+To enable the link, open the repository on GitHub, go to **Settings > Pages**, set the source to the `main` branch (root folder) and save. The link above works after the page is published. Alternatively, open `demo.html` directly in any browser.
+
 ## Repository Structure
 
 ```
@@ -14,6 +27,7 @@ python-files-errors-assessment/
 ├── expense_tracker.py
 ├── attendance_cleaner.py
 ├── attendance.txt
+├── demo.html
 └── README.md
 ```
 
