@@ -9,16 +9,20 @@ Two small command-line tools for a training institute, built with Python's **fil
 
 ## Live Demo
 
-An interactive browser version of both tools is included in [`demo.html`](demo.html). It uses the same validation, CSV format and cleaning steps as the Python scripts, so you can try the project without installing anything.
+An interactive browser version of both tools is included in `demo.html`. It uses the same validation, CSV format and cleaning steps as the Python scripts, so you can try the project without installing anything.
 
-**[Open the live demo](https://<your-username>.github.io/python-files-errors-assessment/demo.html)**
+| Option | Link |
+|---|---|
+| Instant preview (no setup) | [Open demo](https://htmlpreview.github.io/?https://github.com/muhammadaliajaz/python-files-errors-assessment/blob/main/demo.html) |
+| GitHub Pages | [Open demo](https://muhammadaliajaz.github.io/python-files-errors-assessment/demo.html) |
+| Locally | Download `demo.html` and double-click it |
+
+> The Pages link works after you enable **Settings > Pages > Deploy from a branch > main / (root)**. If your default branch is `master`, change `main` to `master` in the instant preview link.
 
 What the demo shows:
 
-- **Expense Tracker:** add expenses, see invalid amounts rejected, view unique categories and totals, and watch `expenses.csv` update. Use **Simulate restart** to prove the saved data is loaded again.
+- **Expense Tracker:** add expenses, see invalid amounts rejected, view unique categories and totals, and watch `expenses.csv` update. **Simulate restart** shows that saved data is loaded again.
 - **Attendance Cleaner:** edit the raw `attendance.txt` text, clean it, see the record counts, and download `attendance_clean.csv`.
-
-To enable the link, open the repository on GitHub, go to **Settings > Pages**, set the source to the `main` branch (root folder) and save. The link above works after the page is published. Alternatively, open `demo.html` directly in any browser.
 
 ## Repository Structure
 
@@ -40,7 +44,7 @@ Python 3.8 or later.
 ## How to Run
 
 ```bash
-git clone https://github.com/<your-username>/python-files-errors-assessment.git
+git clone https://github.com/muhammadaliajaz/python-files-errors-assessment.git
 cd python-files-errors-assessment
 
 python expense_tracker.py        # Task 1
@@ -264,4 +268,4 @@ Cleaned attendance list:
 
 ## Author
 
-Muhammad Ali
+Muhammad Ali Ajaz
